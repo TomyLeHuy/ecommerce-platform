@@ -1,0 +1,60 @@
+# Backend Configuration
+backend:
+  debug: true
+  secret_key: "django-insecure-dev-key-change-in-production"
+  allowed_hosts:
+    - "localhost"
+    - "127.0.0.1"
+  cors_allowed_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+
+# Database Configuration (SQLite for development)
+database:
+  engine: "django.db.backends.sqlite3"
+  name: "db.sqlite3"
+
+# JWT Authentication
+jwt:
+  access_token_lifetime_minutes: 60
+  refresh_token_lifetime_days: 7
+  algorithm: "HS256"
+
+# Business Rules
+business:
+  geo:
+    default_radius_km: 150
+    max_radius_km: 500
+  loyalty:
+    token_value_euro: 1.0
+    purchase_threshold_euro: 100.0
+  subscription:
+    free_tier_commission_percent: 7.3
+    premium_tier_commission_percent: 3.1
+    premium_monthly_fee_euro: 299.0
+
+# Payment Providers
+payments:
+  stripe:
+    enabled: true
+    public_key: "pk_test_placeholder"
+    secret_key: "sk_test_placeholder"
+  paypal:
+    enabled: true
+    client_id: "placeholder"
+    client_secret: "placeholder"
+
+# Email Configuration (Console backend for development)
+email:
+  backend: "django.core.mail.backends.console.EmailBackend"
+  from_email: "noreply@localretail.com"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# API Rate Limiting
+rate_limiting:
+  enabled: false  # Disable for development
+  default_throttle_rate: "100/hour"
