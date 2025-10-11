@@ -90,7 +90,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         """Allow public read access, require auth for write operations."""
-        if self.action in ["list", "retrieve", "search_nearby"]:
+        if self.action in ["list", "retrieve", "search_nearby", "featured", "related"]:
             return [AllowAny()]
         return [IsAuthenticated()]
 
