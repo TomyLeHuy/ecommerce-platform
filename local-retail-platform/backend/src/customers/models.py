@@ -234,6 +234,8 @@ class LoyaltyToken(models.Model):
     @property
     def token_value_euros(self) -> Decimal:
         """Get euro value of this transaction."""
+        if self.amount is None:
+            return Decimal("0.00")
         from src.config.configManager import config_manager
         token_value = Decimal(str(config_manager.config.business.loyalty.token_value_euro))
         return abs(self.amount) * token_value

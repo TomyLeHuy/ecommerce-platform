@@ -98,7 +98,6 @@ class CustomerProfileAdmin(admin.ModelAdmin):
     def full_name_display(self, obj):
         """Display customer full name."""
         return obj.user.get_full_name() or "—"
-
     full_name_display.short_description = _("Full Name")
 
     def has_location_display(self, obj):
@@ -106,7 +105,6 @@ class CustomerProfileAdmin(admin.ModelAdmin):
         if obj.has_location:
             return format_html('<span style="color: green;">✓</span>')
         return format_html('<span style="color: red;">✗</span>')
-
     has_location_display.short_description = _("Location")
 
     def token_balance_display(self, obj):
@@ -116,13 +114,11 @@ class CustomerProfileAdmin(admin.ModelAdmin):
             '<span style="font-weight: bold; color: #0066cc;">{} tokens</span>',
             balance,
         )
-
     token_balance_display.short_description = _("Token Balance")
 
     def total_spent_display(self, obj):
         """Display total spent with currency."""
         return f"€{obj.total_spent}"
-
     total_spent_display.short_description = _("Total Spent")
 
 
@@ -164,7 +160,6 @@ class FavoriteShopAdmin(admin.ModelAdmin):
     def shop_location(self, obj):
         """Display shop city."""
         return obj.shop.merchant.city
-
     shop_location.short_description = _("Shop Location")
 
 
@@ -198,7 +193,6 @@ class LoyaltyTokenAdmin(admin.ModelAdmin):
                     "transaction_type",
                     "amount",
                     "balance_after",
-                    "token_value_display",
                 ),
             },
         ),
@@ -217,6 +211,46 @@ class LoyaltyTokenAdmin(admin.ModelAdmin):
         ),
     )
 
+    def get_readonly_fields(self, request, obj=None):
+        """Show token_value_display only when editing existing token."""
+        readonly = list(self.readonly_fields)
+        if obj:  # Editing existing object
+            # Insert token_value_display after balance_after
+            return ["created_at", "token_value_display"]
+        return ["created_at"]  # Creating new object
+
+    def get_fieldsets(self, request, obj=None):
+        """Adjust fieldsets based on add vs change."""
+        if obj:  # Editing
+            return (
+                (
+                    _("Transaction Details"),
+                    {
+                        "fields": (
+                            "customer",
+                            "transaction_type",
+                            "amount",
+                            "balance_after",
+                            "token_value_display",
+                        ),
+                    },
+                ),
+                (
+                    _("References"),
+                    {
+                        "fields": ("order", "description"),
+                    },
+                ),
+                (
+                    _("Timestamps"),
+                    {
+                        "fields": ("created_at",),
+                        "classes": ("collapse",),
+                    },
+                ),
+            )
+        return self.fieldsets  # Adding - use default without token_value_display
+
     def amount_display(self, obj):
         """Display amount with color coding."""
         color = "green" if obj.amount > 0 else "red"
@@ -227,13 +261,11 @@ class LoyaltyTokenAdmin(admin.ModelAdmin):
             sign,
             obj.amount,
         )
-
     amount_display.short_description = _("Amount")
 
     def token_value_display(self, obj):
         """Display euro value of tokens."""
         return f"€{obj.token_value_euros}"
-
     token_value_display.short_description = _("Euro Value")
 
 
@@ -337,7 +369,6 @@ class DigitalReceiptAdmin(admin.ModelAdmin):
     def total_amount_display(self, obj):
         """Display total amount with currency."""
         return f"€{obj.total_amount}"
-
     total_amount_display.short_description = _("Total")
 
     def return_status_display(self, obj):
@@ -359,7 +390,6 @@ class DigitalReceiptAdmin(admin.ModelAdmin):
         return format_html(
             '<span style="color: red;">✗ Expired</span>'
         )
-
     return_status_display.short_description = _("Return Status")
 
     def days_remaining_display(self, obj):
@@ -368,7 +398,6 @@ class DigitalReceiptAdmin(admin.ModelAdmin):
         if days is None:
             return "—"
         return f"{days} days"
-
     days_remaining_display.short_description = _("Days Remaining")
 
     def get_queryset(self, request):
