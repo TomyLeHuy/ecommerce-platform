@@ -94,6 +94,8 @@ export interface Product {
   };
   category_name: string;
   is_featured: boolean;
+  sales_count?: number; // Added sales_count as optional
+  view_count?: number; // Added view_count as optional
 }
 
 export interface ProductDetail extends Product {

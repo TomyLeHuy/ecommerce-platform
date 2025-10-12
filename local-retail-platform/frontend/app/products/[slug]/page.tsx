@@ -264,7 +264,7 @@ export default function ProductDetailPage() {
             <div className="mt-6 grid grid-cols-2 gap-4">
               <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
                 <TrendingUp className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-gray-900">{product.sales_count}</p>
+                <p className="text-2xl font-bold text-gray-900">{product.sales_count || 0}</p>
                 <p className="text-sm text-gray-600">Sales</p>
               </div>
               <div className="bg-white border border-gray-200 rounded-lg p-4 text-center">
