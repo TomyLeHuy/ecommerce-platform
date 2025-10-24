@@ -243,6 +243,49 @@ export const api = {
     },
   },
 
+  // Orders
+  orders: {
+    create: async (orderData: {
+      shipping_street_address: string;
+      shipping_city: string;
+      shipping_postal_code: string;
+      shipping_country: string;
+      customer_notes?: string;
+      items: Array<{
+        product_id: number;
+        quantity: number;
+      }>;
+    }) => {
+      const response = await apiClient.post('/api/orders/', orderData);
+      return response.data;
+    },
+
+    list: async (params?: { page?: number; page_size?: number }) => {
+      const response = await apiClient.get('/api/orders/', { params });
+      return response.data;
+    },
+
+    get: async (orderNumber: string) => {
+      const response = await apiClient.get(`/api/orders/${orderNumber}/`);
+      return response.data;
+    },
+
+    recent: async () => {
+      const response = await apiClient.get('/api/orders/recent/');
+      return response.data;
+    },
+
+    stats: async () => {
+      const response = await apiClient.get('/api/orders/stats/');
+      return response.data;
+    },
+
+    cancel: async (orderNumber: string) => {
+      const response = await apiClient.post(`/api/orders/${orderNumber}/cancel/`);
+      return response.data;
+    },
+  },
+
   // Authentication
   auth: {
     login: async (username: string, password: string) => {
