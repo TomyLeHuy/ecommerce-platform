@@ -22,16 +22,19 @@ import {
 } from 'lucide-react';
 import { api, ProductDetail, Product } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
+import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { addToCart, isInCart } = useCart();
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -61,6 +64,13 @@ export default function ProductDetailPage() {
 
     fetchProduct();
   }, [slug]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    setAddingToCart(true);
+    addToCart(product, 1);
+    setTimeout(() => setAddingToCart(false), 1000);
+  };
 
   if (loading) {
     return (
@@ -228,17 +238,18 @@ export default function ProductDetailPage() {
               <p className="text-lg text-gray-600 mb-6">{product.short_description}</p>
             )}
 
-            {/* Add to Cart (Placeholder) */}
+            {/* Add to Cart */}
             <button
-              disabled={!product.is_in_stock}
+              onClick={handleAddToCart}
+              disabled={!product.is_in_stock || addingToCart}
               className={`w-full py-4 px-6 rounded-lg font-semibold text-lg flex items-center justify-center gap-2 transition-colors ${
                 product.is_in_stock
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white disabled:bg-blue-400'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
               <ShoppingCart className="w-6 h-6" />
-              {product.is_in_stock ? 'Add to Cart' : 'Out of Stock'}
+              {addingToCart ? 'Added!' : product.is_in_stock ? 'Add to Cart' : 'Out of Stock'}
             </button>
 
             {/* Shop Information */}
