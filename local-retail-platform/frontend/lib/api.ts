@@ -210,6 +210,39 @@ export const api = {
     },
   },
 
+  // Customers
+  customers: {
+    register: async (data: {
+      username: string;
+      email: string;
+      password: string;
+      password_confirm: string;
+      first_name?: string;
+      last_name?: string;
+    }) => {
+      const response = await apiClient.post('/api/customers/register/', data);
+      const { tokens } = response.data;
+      localStorage.setItem('access_token', tokens.access);
+      localStorage.setItem('refresh_token', tokens.refresh);
+      return response.data;
+    },
+
+    getProfile: async () => {
+      const response = await apiClient.get('/api/customers/profile/me/');
+      return response.data;
+    },
+
+    updateProfile: async (data: any) => {
+      const response = await apiClient.patch('/api/customers/profile/me/', data);
+      return response.data;
+    },
+
+    getTokenBalance: async () => {
+      const response = await apiClient.get('/api/customers/profile/token_balance/');
+      return response.data;
+    },
+  },
+
   // Authentication
   auth: {
     login: async (username: string, password: string) => {
