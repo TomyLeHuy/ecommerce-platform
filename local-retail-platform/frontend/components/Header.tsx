@@ -8,13 +8,16 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Store, Search, User, Menu, X } from 'lucide-react';
+import { Store, Search, User, Menu, X, LogOut } from 'lucide-react';
 import CartButton from './CartButton';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,14 +74,58 @@ export default function Header() {
           {/* Actions */}
           <div className="flex items-center gap-2">
             {/* User Menu - Desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              <Link
-                href="/customer/login"
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <User className="w-5 h-5" />
-                <span className="text-sm font-medium">Account</span>
-              </Link>
+            <div className="hidden md:block relative">
+              {isAuthenticated && user ? (
+                <div>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <span className="text-sm font-medium">{user.username}</span>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <Link
+                        href="/customer/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/customer/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      <hr className="my-2" />
+                      <button
+                        onClick={() => {
+                          logout();
+                          setUserMenuOpen(false);
+                          router.push('/');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/customer/login"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="text-sm font-medium">Login</span>
+                </Link>
+              )}
             </div>
 
             {/* Cart Button */}
