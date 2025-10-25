@@ -146,6 +146,73 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
+export interface OrderItem {
+  id: number;
+  product_id: number;
+  product_name: string;
+  product_sku: string;
+  product_image: string | null;
+  unit_price: string;
+  quantity: number;
+  line_total: string;
+  tax_rate: string;
+  tax_amount: string;
+}
+
+export interface Order {
+  id: number;
+  order_number: string;
+  shop_name: string;
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  total: string;
+  item_count: number;
+  ordered_at: string;
+  payment_status: string;
+}
+
+export interface OrderDetail {
+  id: number;
+  order_number: string;
+  shop: {
+    id: number;
+    name: string;
+    slug: string;
+    merchant_name: string;
+    email: string;
+    phone: string;
+  };
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+  fulfillment_method: 'delivery' | 'pickup';
+  shipping_street_address: string;
+  shipping_city: string;
+  shipping_postal_code: string;
+  shipping_country: string;
+  subtotal: string;
+  tax_amount: string;
+  shipping_cost: string;
+  discount_amount: string;
+  tokens_used: number;
+  tokens_value: string;
+  total: string;
+  payment_status: string;
+  payment_method: string;
+  customer_notes: string;
+  tracking_number: string;
+  tracking_url: string;
+  items: OrderItem[];
+  status_history: Array<{
+    status: string;
+    notes: string;
+    changed_by: string;
+    created_at: string;
+  }>;
+  ordered_at: string;
+  confirmed_at: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  cancelled_at: string | null;
+}
+
 // API Methods
 export const api = {
   // Products
@@ -189,6 +256,25 @@ export const api = {
     related: async (slug: string): Promise<Product[]> => {
       const response = await apiClient.get(`/api/products/products/${slug}/related/`);
       return response.data;
+    },
+
+    myProducts: async (): Promise<Product[]> => {
+      const response = await apiClient.get('/api/products/products/my_products/');
+      return response.data;
+    },
+
+    create: async (data: any): Promise<ProductDetail> => {
+      const response = await apiClient.post('/api/products/products/', data);
+      return response.data;
+    },
+
+    update: async (slug: string, data: any): Promise<ProductDetail> => {
+      const response = await apiClient.patch(`/api/products/products/${slug}/`, data);
+      return response.data;
+    },
+
+    delete: async (slug: string): Promise<void> => {
+      await apiClient.delete(`/api/products/products/${slug}/`);
     },
   },
 
@@ -264,6 +350,67 @@ export const api = {
     isAuthenticated: (): boolean => {
       if (typeof window === 'undefined') return false;
       return !!localStorage.getItem('access_token');
+    },
+  },
+
+  // Orders
+  orders: {
+    create: async (data: {
+      shipping_street_address: string;
+      shipping_city: string;
+      shipping_postal_code: string;
+      shipping_country?: string;
+      customer_notes?: string;
+      items: Array<{
+        product_id: number;
+        quantity: number;
+      }>;
+    }): Promise<OrderDetail> => {
+      const response = await apiClient.post('/api/orders/', data);
+      return response.data;
+    },
+
+    list: async (): Promise<Order[]> => {
+      const response = await apiClient.get('/api/orders/');
+      return response.data;
+    },
+
+    get: async (id: number): Promise<OrderDetail> => {
+      const response = await apiClient.get(`/api/orders/${id}/`);
+      return response.data;
+    },
+
+    myOrders: async (): Promise<Order[]> => {
+      const response = await apiClient.get('/api/orders/my_orders/');
+      return response.data;
+    },
+
+    merchantOrders: async (): Promise<Order[]> => {
+      const response = await apiClient.get('/api/orders/merchant_orders/');
+      return response.data;
+    },
+
+    updateStatus: async (id: number, status: string, notes?: string): Promise<OrderDetail> => {
+      const response = await apiClient.patch(`/api/orders/${id}/update_status/`, {
+        status,
+        notes,
+      });
+      return response.data;
+    },
+
+    updateTracking: async (id: number, tracking_number: string, tracking_url?: string): Promise<OrderDetail> => {
+      const response = await apiClient.patch(`/api/orders/${id}/update_tracking/`, {
+        tracking_number,
+        tracking_url,
+      });
+      return response.data;
+    },
+
+    cancel: async (id: number, reason?: string): Promise<OrderDetail> => {
+      const response = await apiClient.post(`/api/orders/${id}/cancel/`, {
+        reason,
+      });
+      return response.data;
     },
   },
 };
