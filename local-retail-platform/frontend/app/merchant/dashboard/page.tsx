@@ -37,8 +37,8 @@ export default function MerchantDashboardPage() {
   const fetchMerchantProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.products.list({ page_size: 100 });
-      setProducts(response.results);
+      const data = await api.products.myProducts();
+      setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
       if ((error as any).response?.status === 401) {
@@ -184,13 +184,13 @@ export default function MerchantDashboardPage() {
             </button>
 
             <button
-              disabled
-              className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg opacity-50 cursor-not-allowed"
+              onClick={() => router.push('/merchant/orders')}
+              className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
             >
-              <ShoppingCart className="w-6 h-6 text-gray-400" />
+              <ShoppingCart className="w-6 h-6 text-blue-600" />
               <div className="text-left">
                 <p className="font-semibold text-gray-900">View Orders</p>
-                <p className="text-sm text-gray-600">Coming soon</p>
+                <p className="text-sm text-gray-600">Manage incoming orders</p>
               </div>
             </button>
           </div>

@@ -29,8 +29,8 @@ export default function MerchantProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.products.list({ page_size: 100 });
-      setProducts(response.results);
+      const data = await api.products.myProducts();
+      setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
       if ((error as any).response?.status === 401) {
