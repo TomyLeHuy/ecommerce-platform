@@ -14,7 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, userType } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -89,19 +89,28 @@ export default function Header() {
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                       <Link
-                        href="/customer/dashboard"
+                        href={userType === 'merchant' ? '/merchant/dashboard' : '/customer/dashboard'}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         Dashboard
                       </Link>
                       <Link
-                        href="/customer/orders"
+                        href={userType === 'merchant' ? '/merchant/orders' : '/customer/orders'}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        My Orders
+                        {userType === 'merchant' ? 'Orders' : 'My Orders'}
                       </Link>
+                      {userType === 'merchant' && (
+                        <Link
+                          href="/merchant/products"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Products
+                        </Link>
+                      )}
                       <hr className="my-2" />
                       <button
                         onClick={() => {
@@ -128,8 +137,8 @@ export default function Header() {
               )}
             </div>
 
-            {/* Cart Button */}
-            <CartButton />
+            {/* Cart Button - Only show for customers or non-authenticated users */}
+            {userType !== 'merchant' && <CartButton />}
 
             {/* Mobile Menu Button */}
             <button
@@ -160,78 +169,112 @@ export default function Header() {
         </form>
       </div>
 
-      {/* Navigation Links - Desktop */}
-      <nav className="hidden md:block border-t">
-        <div className="container mx-auto px-4">
-          <ul className="flex items-center gap-8 py-3">
-            <li>
-              <Link
-                href="/products"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                All Products
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/products?featured=true"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Featured
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/customer/orders"
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                My Orders
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+      {/* Navigation Links - Desktop - Only show for non-merchant users */}
+      {userType !== 'merchant' && (
+        <nav className="hidden md:block border-t">
+          <div className="container mx-auto px-4">
+            <ul className="flex items-center gap-8 py-3">
+              <li>
+                <Link
+                  href="/products"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  All Products
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/products?featured=true"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  Featured
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/customer/orders"
+                  className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                >
+                  My Orders
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      )}
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t bg-white">
           <div className="container mx-auto px-4 py-4">
             <nav className="space-y-2">
-              <Link
-                href="/products"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                All Products
-              </Link>
-              <Link
-                href="/products?featured=true"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Featured
-              </Link>
-              <Link
-                href="/customer/orders"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                My Orders
-              </Link>
-              <Link
-                href="/customer/login"
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Account
-              </Link>
-              <Link
-                href="/merchant/login"
-                className="block px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Merchant Portal
-              </Link>
+              {userType === 'merchant' ? (
+                <>
+                  {/* Merchant-specific mobile menu */}
+                  <Link
+                    href="/merchant/dashboard"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/merchant/products"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Products
+                  </Link>
+                  <Link
+                    href="/merchant/orders"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Orders
+                  </Link>
+                </>
+              ) : (
+                <>
+                  {/* Customer-specific mobile menu */}
+                  <Link
+                    href="/products"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    All Products
+                  </Link>
+                  <Link
+                    href="/products?featured=true"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Featured
+                  </Link>
+                  <Link
+                    href="/customer/orders"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Orders
+                  </Link>
+                  {!isAuthenticated && (
+                    <Link
+                      href="/customer/login"
+                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Account
+                    </Link>
+                  )}
+                  <Link
+                    href="/merchant/login"
+                    className="block px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Merchant Portal
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
