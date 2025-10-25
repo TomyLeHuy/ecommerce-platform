@@ -213,6 +213,51 @@ export interface OrderDetail {
   cancelled_at: string | null;
 }
 
+export interface Shop {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  logo: string | null;
+  banner_image: string | null;
+  email: string;
+  phone: string;
+  delivery_radius_km: number;
+  accepts_online_orders: boolean;
+  accepts_in_store_pickup: boolean;
+  total_products: number;
+  total_orders: number;
+  is_active: boolean;
+  is_operational: boolean;
+}
+
+export interface MerchantProfile {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  company_name: string;
+  tax_id: string;
+  phone: string;
+  business_street_address: string;
+  business_city: string;
+  business_postal_code: string;
+  business_country: string;
+  is_verified: boolean;
+  shops: Shop[];
+  subscription: {
+    id: number;
+    tier: string;
+    status: string;
+    commission_rate: string;
+    monthly_fee: string;
+    is_premium: boolean;
+    premium_start_date: string | null;
+    premium_end_date: string | null;
+  };
+}
+
 // API Methods
 export const api = {
   // Products
@@ -410,6 +455,19 @@ export const api = {
       const response = await apiClient.post(`/api/orders/${id}/cancel/`, {
         reason,
       });
+      return response.data;
+    },
+  },
+
+  // Merchants
+  merchants: {
+    getProfile: async (): Promise<MerchantProfile> => {
+      const response = await apiClient.get('/api/merchants/profile/me/');
+      return response.data;
+    },
+
+    getShops: async (): Promise<Shop[]> => {
+      const response = await apiClient.get('/api/merchants/shops/my_shops/');
       return response.data;
     },
   },

@@ -20,6 +20,7 @@ urlpatterns = [
     # API endpoints
     path("api/products/", include("src.products.urls")),
     path("api/customers/", include("src.customers.urls")),
+    path("api/merchants/", include("src.merchants.urls")),
     path("api/orders/", include("src.orders.urls")),
 ]
 

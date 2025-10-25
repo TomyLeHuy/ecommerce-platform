@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { api, Category } from '@/lib/api';
+import { api, Category, Shop } from '@/lib/api';
 import Link from 'next/link';
 
 export default function NewProductPage() {
@@ -11,6 +11,8 @@ export default function NewProductPage() {
   const { isAuthenticated, isLoading, user } = useAuth();
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [merchantShopId, setMerchantShopId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     shop: '',
     category: '',
@@ -48,6 +50,7 @@ export default function NewProductPage() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchCategories();
+      fetchMerchantShops();
     }
   }, [isAuthenticated]);
 
@@ -57,6 +60,21 @@ export default function NewProductPage() {
       setCategories(data);
     } catch (err) {
       console.error('Failed to fetch categories:', err);
+    }
+  };
+
+  const fetchMerchantShops = async () => {
+    try {
+      const data = await api.merchants.getShops();
+      setShops(data);
+      if (data.length > 0) {
+        setMerchantShopId(data[0].id);
+      } else {
+        setError('No shop found for your merchant account. Please create a shop first via Django Admin.');
+      }
+    } catch (err) {
+      console.error('Failed to fetch merchant shops:', err);
+      setError('Failed to load merchant shops. You may not have a merchant profile set up.');
     }
   };
 
@@ -99,14 +117,17 @@ export default function NewProductPage() {
       return;
     }
 
+    if (!merchantShopId) {
+      setError('No shop found. Please ensure you have a merchant shop set up.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Note: In a real app, the shop ID should come from the authenticated merchant's profile
-      // For now, we'll need to get the shop ID from the merchant's profile
       const productData = {
         ...formData,
-        shop: 1, // This should be dynamically obtained from merchant profile
+        shop: merchantShopId,
         category: parseInt(formData.category),
         price: parseFloat(formData.price) || 0,
         sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
